@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Lexik\Bundle\WorkflowBundle\Event;
 
 use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;

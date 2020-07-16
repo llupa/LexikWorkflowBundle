@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Lexik\Bundle\WorkflowBundle\Flow;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use LogicException;
 
 /**
  * @author Cédric Girard <c.girard@lexik.fr>

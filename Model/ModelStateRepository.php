@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Lexik\Bundle\WorkflowBundle\Model;
 
 use ArrayAccess;
 use Doctrine\ORM\EntityRepository;
-
 use InvalidArgumentException;
 use Lexik\Bundle\WorkflowBundle\Entity\ModelState;
 

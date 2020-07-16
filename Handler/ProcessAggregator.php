@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Lexik\Bundle\WorkflowBundle\Handler;
 
 use Lexik\Bundle\WorkflowBundle\Exception\WorkflowException;
