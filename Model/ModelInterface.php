@@ -4,19 +4,9 @@ namespace Lexik\Bundle\WorkflowBundle\Model;
 
 interface ModelInterface
 {
-    /**
-     * Returns a unique identifier.
-     *
-     * @return mixed
-     */
-    public function getWorkflowIdentifier();
+    public function getWorkflowIdentifier(): string;
 
-    /**
-     * Returns data to store in the ModelState.
-     *
-     * @return array
-     */
-    public function getWorkflowData();
+    public function getWorkflowData(): array;
 
     /**
      * Returns the object of the workflow.

@@ -1,46 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Lexik\Bundle\WorkflowBundle\Model;
 
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 use Lexik\Bundle\WorkflowBundle\Entity\ModelState;
 use Lexik\Bundle\WorkflowBundle\Validation\ViolationList;
 
-use Doctrine\ORM\EntityManager;
-
 class ModelStorage
 {
-    /**
-     * @var Doctrine\ORM\EntityManager
-     */
     protected $om;
 
     /**
-     * @var Doctrine\ORM\EntityRepository
+     * @var EntityRepository
      */
     protected $repository;
 
-    /**
-     * Construct.
-     *
-     * @param EntityManager $om
-     * @param string        $entityClass
-     */
-    public function __construct(EntityManager $om, $entityClass)
+    public function __construct(EntityManager $om, string $entityClass)
     {
         $this->om = $om;
         $this->repository = $this->om->getRepository($entityClass);
     }
 
-    /**
-     * Returns the current model state.
-     *
-     * @param ModelInterface $model
-     * @param string         $processName
-     * @param string         $stepName
-     *
-     * @return ModelState
-     */
-    public function findCurrentModelState(ModelInterface $model, $processName, $stepName = null)
+    public function findCurrentModelState(ModelInterface $model, string $processName, string $stepName = null): ?ModelState
     {
         return $this->repository->findLatestModelState(
             $model->getWorkflowIdentifier(),
@@ -49,16 +33,7 @@ class ModelStorage
         );
     }
 
-    /**
-     * Returns all model states.
-     *
-     * @param ModelInterface $model
-     * @param string         $processName
-     * @param bool           $successOnly
-     *
-     * @return mixed
-     */
-    public function findAllModelStates(ModelInterface $model, $processName, $successOnly = true)
+    public function findAllModelStates(ModelInterface $model, string $processName, bool $successOnly = true): array
     {
         return $this->repository->findModelStates(
             $model->getWorkflowIdentifier(),
@@ -67,36 +42,20 @@ class ModelStorage
         );
     }
 
-    /**
-     * Create a new invalid model state.
-     *
-     * @param ModelInterface  $model
-     * @param string          $processName
-     * @param string          $stepName
-     * @param ViolationList   $violationList
-     * @param null|ModelState $previous
-     *
-     * @return ModelState
-     */
-    public function newModelStateError(ModelInterface $model, $processName, $stepName, ViolationList $violationList, $previous = null)
+    public function newModelStateError(ModelInterface $model, string $processName, string $stepName, ViolationList $violationList, ?ModelState $previous = null): ModelState
     {
         $modelState = $this->createModelState($model, $processName, $stepName, $previous);
         $modelState->setSuccessful(false);
         $modelState->setErrors($violationList->toArray());
 
+        //todo: drop single entity flush
         $this->om->persist($modelState);
         $this->om->flush($modelState);
 
         return $modelState;
     }
 
-    /**
-     * Delete all model states.
-     *
-     * @param ModelInterface $model
-     * @param string         $processName
-     */
-    public function deleteAllModelStates(ModelInterface $model, $processName = null)
+    public function deleteAllModelStates(ModelInterface $model, string $processName = null): int
     {
         return $this->repository->deleteModelStates(
             $model->getWorkflowIdentifier(),
@@ -104,21 +63,12 @@ class ModelStorage
         );
     }
 
-    /**
-     * Create a new successful model state.
-     *
-     * @param ModelInterface $model
-     * @param string         $processName
-     * @param string         $stepName
-     * @param ModelState     $previous
-     *
-     * @return \Lexik\Bundle\WorkflowBundle\Entity\ModelState
-     */
-    public function newModelStateSuccess(ModelInterface $model, $processName, $stepName, $previous = null)
+    public function newModelStateSuccess(ModelInterface $model, string $processName, string $stepName, ?ModelState $previous = null): ModelState
     {
         $modelState = $this->createModelState($model, $processName, $stepName, $previous);
         $modelState->setSuccessful(true);
 
+        //todo: drop single entity flush
         $this->om->persist($modelState);
         $this->om->flush($modelState);
 
@@ -126,27 +76,14 @@ class ModelStorage
     }
 
     /**
-     * Normalize by fetching workflow states of each $objects.
-     *
      * @param ModelState|array $objects
-     * @param array            $processes
-     * @param bool             $onlySuccess
      */
-    public function setStates($objects, $processes = array(), $onlySuccess = false)
+    public function setStates($objects, array $processes = [], bool $onlySuccess = false)
     {
         $this->repository->setStates($objects, $processes, $onlySuccess);
     }
 
-    /**
-     * Create a new model state.
-     *
-     * @param  ModelInterface                                 $model
-     * @param  string                                         $processName
-     * @param  string                                         $stepName
-     * @param  ModelState                                     $previous
-     * @return \Lexik\Bundle\WorkflowBundle\Entity\ModelState
-     */
-    protected function createModelState(ModelInterface $model, $processName, $stepName, $previous = null)
+    protected function createModelState(ModelInterface $model, string $processName, string $stepName, ?ModelState $previous = null): ModelState
     {
         $modelState = new ModelState();
         $modelState->setWorkflowIdentifier($model->getWorkflowIdentifier());

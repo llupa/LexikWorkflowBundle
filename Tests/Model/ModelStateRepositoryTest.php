@@ -3,8 +3,6 @@
 namespace Lexik\Bundle\WorkflowBundle\Tests\Model;
 
 use Lexik\Bundle\WorkflowBundle\Entity\ModelState;
-use Lexik\Bundle\WorkflowBundle\Model\ModelStorage;
-use Lexik\Bundle\WorkflowBundle\Tests\Fixtures\FakeModel;
 use Lexik\Bundle\WorkflowBundle\Tests\TestCase;
 
 class ModelStateRepositoryTest extends TestCase

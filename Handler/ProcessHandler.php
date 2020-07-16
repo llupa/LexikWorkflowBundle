@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Lexik\Bundle\WorkflowBundle\Handler;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -15,58 +17,32 @@ use Lexik\Bundle\WorkflowBundle\Flow\Process;
 use Lexik\Bundle\WorkflowBundle\Entity\ModelState;
 use Lexik\Bundle\WorkflowBundle\Model\ModelStorage;
 use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
+use function in_array;
+use function sprintf;
 
-/**
- * Contains all logic to handle a process and its steps.
- */
 class ProcessHandler implements ProcessHandlerInterface
 {
-    /**
-     * @var Process
-     */
     protected $process;
-
-    /**
-     * @var ModelStorage
-     */
     protected $storage;
-
-    /**
-     * @var AuthorizationCheckerInterface
-     */
     protected $authorizationChecker;
-
-    /**
-     * @var EventDispatcherInterface
-     */
     protected $dispatcher;
 
-    /**
-     * Construct.
-     *
-     * @param Process                  $process
-     * @param ModelStorage             $storage
-     * @param EventDispatcherInterface $dispatcher
-     */
     public function __construct(Process $process, ModelStorage $storage, EventDispatcherInterface $dispatcher)
     {
-        $this->process = $process;
-        $this->storage = $storage;
+        $this->process    = $process;
+        $this->storage    = $storage;
         $this->dispatcher = $dispatcher;
     }
 
-    /**
-     * @param AuthorizationCheckerInterface $authorizationChecker
-     */
     public function setAuthorizationChecker(AuthorizationCheckerInterface $authorizationChecker)
     {
         $this->authorizationChecker = $authorizationChecker;
     }
 
     /**
-     * {@inheritdoc}
+     * @throws WorkflowException
      */
-    public function start(ModelInterface $model)
+    public function start(ModelInterface $model): ModelState
     {
         $modelState = $this->storage->findCurrentModelState($model, $this->process->getName());
 
@@ -80,9 +56,9 @@ class ProcessHandler implements ProcessHandlerInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @throws WorkflowException
      */
-    public function reachNextState(ModelInterface $model, $stateName)
+    public function reachNextState(ModelInterface $model, string $stateName): ModelState
     {
         $currentModelState = $this->storage->findCurrentModelState($model, $this->process->getName());
 
@@ -102,6 +78,7 @@ class ProcessHandler implements ProcessHandlerInterface
         // pre validations
         $event = new ValidateStepEvent($step, $model, new ViolationList());
         $eventName = sprintf('%s.%s.%s.pre_validation', $this->process->getName(), $currentStep->getName(), $stateName);
+        // todo: swap places in Sf 4
         $this->dispatcher->dispatch($eventName, $event);
 
         $modelState = null;
@@ -110,6 +87,7 @@ class ProcessHandler implements ProcessHandlerInterface
             $modelState = $this->storage->newModelStateError($model, $this->process->getName(), $step->getName(), $event->getViolationList(), $currentModelState);
 
             $eventName = sprintf('%s.%s.%s.pre_validation_fail', $this->process->getName(), $currentStep->getName(), $stateName);
+            // todo: swap places in Sf 4
             $this->dispatcher->dispatch($eventName, new StepEvent($step, $model, $modelState));
         } else {
             $modelState = $this->reachStep($model, $step, $currentModelState);
@@ -118,15 +96,7 @@ class ProcessHandler implements ProcessHandlerInterface
         return $modelState;
     }
 
-    /**
-     * Reach the given step.
-     *
-     * @param  ModelInterface $model
-     * @param  Step           $step
-     * @param  ModelState     $currentModelState
-     * @return ModelState
-     */
-    protected function reachStep(ModelInterface $model, Step $step, ModelState $currentModelState = null)
+    protected function reachStep(ModelInterface $model, Step $step, ?ModelState $currentModelState = null): ModelState
     {
         try {
             $this->checkCredentials($model, $step);
@@ -136,6 +106,7 @@ class ProcessHandler implements ProcessHandlerInterface
 
             $modelState = $this->storage->newModelStateError($model, $this->process->getName(), $step->getName(), $violations, $currentModelState);
 
+            // todo: swap places in Sf 4
             $eventName = sprintf('%s.%s.bad_credentials', $this->process->getName(), $step->getName());
             $this->dispatcher->dispatch($eventName, new StepEvent($step, $model, $modelState));
 
@@ -149,6 +120,7 @@ class ProcessHandler implements ProcessHandlerInterface
 
         $event = new ValidateStepEvent($step, $model, new ViolationList());
         $eventName = sprintf('%s.%s.validate', $this->process->getName(), $step->getName());
+        // todo: swap places in Sf 4
         $this->dispatcher->dispatch($eventName, $event);
 
         if (0 === count($event->getViolationList())) {
@@ -156,16 +128,18 @@ class ProcessHandler implements ProcessHandlerInterface
 
             // update model status
             if ($step->hasModelStatus()) {
-                list($method, $constant) = $step->getModelStatus();
+                [$method, $constant] = $step->getModelStatus();
                 $model->$method(constant($constant));
             }
 
             $eventName = sprintf('%s.%s.reached', $this->process->getName(), $step->getName());
+            // todo: swap places in Sf 4
             $this->dispatcher->dispatch($eventName, new StepEvent($step, $model, $modelState));
         } else {
             $modelState = $this->storage->newModelStateError($model, $this->process->getName(), $step->getName(), $event->getViolationList(), $currentModelState);
 
             $eventName = sprintf('%s.%s.validation_fail', $this->process->getName(), $step->getName());
+            // todo: swap places in Sf 4
             $this->dispatcher->dispatch($eventName, new StepEvent($step, $model, $modelState));
 
             if ($step->getOnInvalid()) {
@@ -177,40 +151,27 @@ class ProcessHandler implements ProcessHandlerInterface
         return $modelState;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCurrentState(ModelInterface $model)
+    public function getCurrentState(ModelInterface $model): ?ModelState
     {
         return $this->storage->findCurrentModelState($model, $this->process->getName());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isProcessComplete(ModelInterface $model)
+    public function isProcessComplete(ModelInterface $model): bool
     {
         $state = $this->getCurrentState($model);
 
         return ( $state !== null && $state->getSuccessful() && in_array($state->getStepName(), $this->process->getEndSteps()) );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getAllStates(ModelInterface $model, $successOnly = true)
+    public function getAllStates(ModelInterface $model, bool $successOnly = true): array
     {
         return $this->storage->findAllModelStates($model, $this->process->getName(), $successOnly);
     }
 
     /**
-     * Returns a step by its name.
-     *
-     * @param  string $stepName
-     * @return Step
      * @throws WorkflowException
      */
-    protected function getProcessStep($stepName)
+    protected function getProcessStep(string $stepName): ?Step
     {
         $step = $this->process->getStep($stepName);
 
@@ -222,13 +183,9 @@ class ProcessHandler implements ProcessHandlerInterface
     }
 
     /**
-     * Check if the user is allowed to reach the step.
-     *
-     * @param  ModelInterface        $model
-     * @param  Step                  $step
      * @throws AccessDeniedException
      */
-    protected function checkCredentials(ModelInterface $model, Step $step)
+    protected function checkCredentials(ModelInterface $model, Step $step): void
     {
         $roles = $step->getRoles();
 

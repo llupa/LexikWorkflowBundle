@@ -2,25 +2,26 @@
 
 namespace Lexik\Bundle\WorkflowBundle\Validation;
 
+use ArrayAccess;
+use ArrayIterator;
+use Countable;
+use InvalidArgumentException;
+use IteratorAggregate;
+use OutOfBoundsException;
+use function count;
+
 /**
- * Violation list of step validations.
- *
  * @author Jeremy Barthe <j.barthe@lexik.fr>
  * @author Gilles Gauthier <g.gauthier@lexik.fr>
  */
-class ViolationList implements \IteratorAggregate, \Countable, \ArrayAccess
+class ViolationList implements IteratorAggregate, Countable, ArrayAccess
 {
     /**
      * @var Violation[]
      */
-    private $violations = array();
+    private $violations = [];
 
-    /**
-     * Converts the violation list as string.
-     *
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
         $output = '';
         foreach ($this->violations as $violation) {
@@ -30,76 +31,50 @@ class ViolationList implements \IteratorAggregate, \Countable, \ArrayAccess
         return $output;
     }
 
-    /**
-     * @param Violation $violation
-     */
-    public function add(Violation $violation)
+    public function add(Violation $violation): void
     {
         $this->violations[] = $violation;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function offsetGet($offset)
+    public function offsetGet($offset): Violation
     {
         if (!isset($this->violations[$offset])) {
-            throw new \OutOfBoundsException(sprintf('The offset "%s" does not exist.', $offset));
+            throw new OutOfBoundsException(sprintf('The offset "%s" does not exist.', $offset));
         }
 
         return $this->violations[$offset];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return isset($this->violations[$offset]);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function offsetSet($offset, $violation)
+    public function offsetSet($offset, $violation): void
     {
         if (!$violation instanceof Violation) {
-            throw new \InvalidArgumentException('You must pass a valid Violation object');
+            throw new InvalidArgumentException('You must pass a valid Violation object');
         }
 
         $this->violations[$offset] = $violation;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->violations[$offset]);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getIterator()
+    public function getIterator(): ArrayIterator
     {
-        return new \ArrayIterator($this->violations);
+        return new ArrayIterator($this->violations);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function count()
+    public function count(): int
     {
         return count($this->violations);
     }
 
-    /**
-     * Cast violations to flat array.
-     *
-     * @return array
-     */
-    public function toArray()
+    public function toArray(): array
     {
         $data = array();
         foreach ($this->violations as $violation) {

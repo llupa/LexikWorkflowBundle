@@ -1,42 +1,23 @@
 <?php
 
-namespace Lexik\Bundle\WorkflowBundle\Event;
+declare(strict_types=1);
 
-use Symfony\Component\EventDispatcher\Event;
+namespace Lexik\Bundle\WorkflowBundle\Event;
 
 use Lexik\Bundle\WorkflowBundle\Entity\ModelState;
 use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
 use Lexik\Bundle\WorkflowBundle\Flow\Step;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * Step event.
- *
  * @author Cédric Girard <c.girard@lexik.fr>
  */
 class StepEvent extends Event
 {
-    /**
-     * @var Step
-     */
     private $step;
-
-    /**
-     * @var ModelInterface
-     */
     private $model;
-
-    /**
-     * @var ModelState
-     */
     private $modelState;
 
-    /**
-     * Construct.
-     *
-     * @param Step           $step
-     * @param ModelInterface $model
-     * @param ModelState     $modelState
-     */
     public function __construct(Step $step, ModelInterface $model, ModelState $modelState)
     {
         $this->step = $step;
@@ -44,32 +25,17 @@ class StepEvent extends Event
         $this->modelState = $modelState;
     }
 
-    /**
-     * Returns the reached step.
-     *
-     * @return Step
-     */
-    public function getStep()
+    public function getStep(): Step
     {
         return $this->step;
     }
 
-    /**
-     * Returns the model.
-     *
-     * @return ModelInterface
-     */
-    public function getModel()
+    public function getModel(): ModelInterface
     {
         return $this->model;
     }
 
-    /**
-     * Returs the last model state.
-     *
-     * @return ModelState
-     */
-    public function getModelState()
+    public function getModelState(): ModelState
     {
         return $this->modelState;
     }

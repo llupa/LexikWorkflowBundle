@@ -4,63 +4,38 @@ namespace Lexik\Bundle\WorkflowBundle\Flow;
 
 use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
 use Lexik\Bundle\WorkflowBundle\Exception\WorkflowException;
+use function call_user_func;
 
 /**
- * Conditional next state.
- *
  * @author Cédric Girard <c.girard@lexik.fr>
  */
 class NextStateOr implements NextStateInterface
 {
-    /**
-     * @var string
-     */
     protected $name;
-
-    /**
-     * @var string
-     */
     protected $type;
-
-    /**
-     * @var array
-     */
     protected $targets;
 
-    /**
-     * Construct.
-     *
-     * @param string $name
-     * @param string $type
-     * @param Node   $target
-     */
-    public function __construct($name, $type, array $targets)
+    public function __construct(string $name, string $type, array $targets)
     {
-        $this->name = $name;
-        $this->type = $type;
+        $this->name    = $name;
+        $this->type    = $type;
         $this->targets = $targets;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
 
     /**
-     * {@inheritdoc}
+     * @throws WorkflowException
      */
-    public function getTarget(ModelInterface $model)
+    public function getTarget(ModelInterface $model): Step
     {
         $target = null;
         $i = 0;
@@ -78,7 +53,7 @@ class NextStateOr implements NextStateInterface
             $i++;
         }
 
-        if (null === $target) {
+        if (! $target instanceof Node) {
             throw new WorkflowException(sprintf('Next state "%s": can\'t choose target step according to given OR conditions.', $this->name));
         }
 

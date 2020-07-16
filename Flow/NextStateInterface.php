@@ -5,8 +5,6 @@ namespace Lexik\Bundle\WorkflowBundle\Flow;
 use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
 
 /**
- * Next state inerface.
- *
  * @author Cédric Girard <c.girard@lexik.fr>
  */
 interface NextStateInterface
@@ -15,26 +13,9 @@ interface NextStateInterface
     const TYPE_STEP_OR = 'step_or';
     const TYPE_PROCESS = 'process';
 
-    /**
-     * Returns the state name.
-     *
-     * @return string
-     */
-    public function getName();
+    public function getName(): string;
 
-    /**
-     * Returns the state type.
-     *
-     * @return string
-     */
-    public function getType();
+    public function getType(): string;
 
-    /**
-     * Returns the state target.
-     *
-     * @param  ModelInterface $model
-     *
-     * @return Node
-     */
-    public function getTarget(ModelInterface $model);
+    public function getTarget(ModelInterface $model): Step;
 }

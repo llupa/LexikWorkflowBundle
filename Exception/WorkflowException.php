@@ -2,7 +2,8 @@
 
 namespace Lexik\Bundle\WorkflowBundle\Exception;
 
-class WorkflowException extends \Exception
-{
+use Exception;
 
+class WorkflowException extends Exception
+{
 }

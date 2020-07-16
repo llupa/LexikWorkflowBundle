@@ -27,22 +27,22 @@ class FakeModel implements ModelInterface, ModelStateInterface
         $this->object = new \stdClass();
     }
 
-    public function getWorkflowIdentifier()
+    public function getWorkflowIdentifier(): string
     {
         return 'sample_identifier';
     }
 
-    public function getWorkflowData()
+    public function getWorkflowData(): array
     {
         return $this->data;
     }
 
-    public function addState(ModelState $modelState)
+    public function addState(ModelState $modelState): void
     {
         $this->states[] = $modelState;
     }
 
-    public function getStates()
+    public function getStates(): array
     {
         return $this->states;
     }
