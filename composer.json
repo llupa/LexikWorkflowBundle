@@ -28,16 +28,17 @@
         }
     ],
     "require": {
-        "php": ">=5.5.9",
-        "symfony/framework-bundle": "~2.7|~3.4",
-        "doctrine/orm": "~2.2"
+        "php": "^7.0",
+        "symfony/framework-bundle": "~4.4",
+        "doctrine/orm": "~2.7",
+        "symfony/security": "^4.4"
     },
     "autoload": {
         "psr-4": { "Lexik\\Bundle\\WorkflowBundle\\": "" }
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.5.x-dev"
+            "dev-master": "1.0.x-dev"
         }
     }
 }
