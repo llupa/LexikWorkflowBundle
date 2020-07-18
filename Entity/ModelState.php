@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Lexik\Bundle\WorkflowBundle\Entity;
 
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use function json_decode;
+use function json_encode;
 
-/**
- * Used to store a state of a model object.
- *
- */
 class ModelState
 {
     /**
@@ -36,17 +38,17 @@ class ModelState
     protected $successful;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      */
     protected $createdAt;
 
     /**
-     * @var array
+     * @var string
      */
     protected $data;
 
     /**
-     * @var array
+     * @var string
      */
     protected $errors;
 
@@ -65,207 +67,108 @@ class ModelState
      */
     public function __construct()
     {
-        $this->createdAt = new \DateTime('now');
+        $this->createdAt = new DateTime('now');
         $this->next = new ArrayCollection();
     }
 
-    /**
-     * Get Id
-     *
-     * @return int
-     */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * Get workflowIdentifier
-     *
-     * @return string
-     */
-    public function getWorkflowIdentifier()
+    public function getWorkflowIdentifier(): string
     {
         return $this->workflowIdentifier;
     }
 
-    /**
-     * Set workflowIdentifier
-     *
-     * @param string $workflowIdentifier
-     */
-    public function setWorkflowIdentifier($workflowIdentifier)
+    public function setWorkflowIdentifier(string $workflowIdentifier): void
     {
         $this->workflowIdentifier = $workflowIdentifier;
     }
 
-    /**
-     * Get processName
-     *
-     * @return string
-     */
-    public function getProcessName()
+    public function getProcessName(): string
     {
         return $this->processName;
     }
 
-    /**
-     * Set processName
-     *
-     * @param string $processName
-     */
-    public function setProcessName($processName)
+    public function setProcessName(string $processName): void
     {
         $this->processName = $processName;
     }
 
-    /**
-     * Get stepName
-     *
-     * @return string
-     */
-    public function getStepName()
+    public function getStepName(): string
     {
         return $this->stepName;
     }
 
-    /**
-     * Set stepName
-     *
-     * @param string $stepName
-     */
-    public function setStepName($stepName)
+    public function setStepName(string $stepName): void
     {
         $this->stepName = $stepName;
     }
 
-    /**
-     * Get createdAt
-     *
-     * @return \DateTime
-     */
-    public function getCreatedAt()
+    public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
     }
 
-    /**
-     * Set createdAt
-     *
-     * @param DateTime $createdAt
-     */
-    public function setCreatedAt($createdAt)
+    public function setCreatedAt(DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    /**
-     * Get data
-     *
-     * @return array
-     */
-    public function getData()
+    public function getData(): array
     {
         return json_decode($this->data, true);
     }
 
-    /**
-     * Set data
-     *
-     * @param mixed $data An array or a JSON string
-     */
-    public function setData($data)
+    public function setData(array $data): void
     {
-        if (!is_string($data)) {
-            $data = json_encode($data);
-        }
-
-        $this->data = $data;
+        $this->data = json_encode($data);
     }
 
-    /**
-     * Get successful
-     *
-     * @return boolean
-     */
-    public function getSuccessful()
+    public function getSuccessful(): bool
     {
         return $this->successful;
     }
 
-    /**
-     * Set successful
-     *
-     * @param boolean
-     */
-    public function setSuccessful($successful)
+    public function setSuccessful(bool $successful): void
     {
-        $this->successful = (boolean) $successful;
+        $this->successful = $successful;
     }
 
-    /**
-     * Get errors
-     *
-     * @return string
-     */
-    public function getErrors()
+    public function getErrors(): array
     {
         return json_decode($this->errors, true);
     }
 
-    /**
-     * Set errors
-     *
-     * @param string $errors
-     */
-    public function setErrors($errors)
+    public function setErrors(array $errors): void
     {
-        if (!is_string($errors)) {
-            $errors = json_encode($errors);
-        }
-
-        $this->errors = $errors;
+        $this->errors = json_encode($errors);
     }
 
-    /**
-     * Get previous
-     *
-     * @return \Lexik\Bundle\WorkflowBundle\Entity\ModelState
-     */
-    public function getPrevious()
+    public function hasPrevious(): bool
+    {
+        return $this->previous instanceof ModelState;
+    }
+
+    public function getPrevious(): ?ModelState
     {
         return $this->previous;
     }
 
-    /**
-     * Set previous
-     *
-     * @param ModelState $state
-     */
-    public function setPrevious(ModelState $state)
+    public function setPrevious(ModelState $state): void
     {
         $this->previous = $state;
     }
 
-    /**
-    * Get next
-    *
-    * @return ArrayCollection
-    */
-    public function getNext()
+    public function getNext(): Collection
     {
         return $this->next;
     }
 
-    /**
-     * Add next
-     *
-     * @param ModelState $state
-     */
-    public function addNext(ModelState $state)
+    public function addNext(ModelState $state): void
     {
         $state->setPrevious($this);
-
-        $this->next[] = $state;
+        $this->next->add($state);
     }
 }

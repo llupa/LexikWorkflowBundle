@@ -1,24 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Lexik\Bundle\WorkflowBundle\Model;
 
+use ArrayAccess;
 use Doctrine\ORM\EntityRepository;
-
+use InvalidArgumentException;
 use Lexik\Bundle\WorkflowBundle\Entity\ModelState;
 
 class ModelStateRepository extends EntityRepository
 {
-    /**
-     * Returns the last ModelState for the given workflow identifier.
-     *
-     * @param string $workflowIdentifier
-     * @param string $processName
-     * @param string $stepName
-     *
-     * @return \Lexik\Bundle\WorkflowBundle\Entity\ModelState
-     */
-    public function findLatestModelState($workflowIdentifier, $processName, $stepName = null)
-    {
+    public function findLatestModelState(
+        string $workflowIdentifier,
+        string $processName,
+        string $stepName = null
+    ): ?ModelState {
         $qb = $this->createQueryBuilder('ms');
         $qb
             ->andWhere('ms.workflowIdentifier = :workflow_identifier')
@@ -40,23 +37,14 @@ class ModelStateRepository extends EntityRepository
         return isset($results[0]) ? $results[0] : null;
     }
 
-    /**
-     * Returns all model states for the given workflow identifier.
-     *
-     * @param  string  $workflowIdentifier
-     * @param  string  $processName
-     * @param  boolean $successOnly
-     * @return array
-     */
-    public function findModelStates($workflowIdentifier, $processName, $successOnly)
+    public function findModelStates(string $workflowIdentifier, string $processName, bool $successOnly): array
     {
         $qb = $this->createQueryBuilder('ms')
             ->andWhere('ms.workflowIdentifier = :workflow_identifier')
             ->andWhere('ms.processName = :process')
             ->orderBy('ms.createdAt', 'ASC')
             ->setParameter('workflow_identifier', $workflowIdentifier)
-            ->setParameter('process', $processName)
-        ;
+            ->setParameter('process', $processName);
 
         if ($successOnly) {
             $qb->andWhere('ms.successful = :success')
@@ -66,14 +54,7 @@ class ModelStateRepository extends EntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    /**
-     * Delete all model states for the given workflowIndentifier (and process name if given).
-     *
-     * @param  string $workflowIdentifier
-     * @param  string $processName
-     * @return int
-     */
-    public function deleteModelStates($workflowIdentifier, $processName = null)
+    public function deleteModelStates(string $workflowIdentifier, string $processName = null): int
     {
         $qb = $this->_em->createQueryBuilder()
             ->delete($this->_entityName, 'ms')
@@ -89,26 +70,22 @@ class ModelStateRepository extends EntityRepository
     }
 
     /**
-     * Normalize by fetching workflow states of each $objects.
-     *
      * @param ModelState|array $objects
-     * @param array            $processes
-     * @param bool             $onlySuccess
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
-    public function setStates($objects, $processes, $onlySuccess)
+    public function setStates($objects, array $processes, bool $onlySuccess)
     {
-        $objects = ( ! is_array($objects) && ! $objects instanceof \ArrayAccess) ? array($objects) : $objects;
+        $objects = (!is_array($objects) && !$objects instanceof ArrayAccess) ? [$objects] : $objects;
 
         if (0 === count($objects)) {
             return;
         }
 
-        $ordersIndexedByWorkflowIdentifier = array();
+        $ordersIndexedByWorkflowIdentifier = [];
         foreach ($objects as $object) {
             if (!$object instanceof ModelStateInterface) {
-                throw new \InvalidArgumentException();
+                throw new InvalidArgumentException();
             }
 
             $ordersIndexedByWorkflowIdentifier[$object->getWorkflowIdentifier()] = $object;

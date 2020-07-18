@@ -1,94 +1,51 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Lexik\Bundle\WorkflowBundle\Flow;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 /**
- * Process class.
- *
  * @author Cédric Girard <c.girard@lexik.fr>
  */
 class Process extends Node
 {
-    /**
-     * @var ArrayCollection
-     */
     protected $steps;
-
-    /**
-     * @var string
-     */
     protected $startStep;
-
-    /**
-     * @var array
-     */
     protected $endSteps;
 
-    /**
-     * Construct.
-     *
-     * @param string $name
-     * @param array  $steps
-     * @param string $startStep
-     * @param array  $endSteps
-     */
-    public function __construct($name, array $steps, $startStep, array $endSteps)
+    public function __construct(string $name, array $steps, string $startStep, array $endSteps)
     {
         parent::__construct($name);
 
-        $this->steps     = new ArrayCollection($steps);
+        $this->steps = new ArrayCollection($steps);
         $this->startStep = $startStep;
-        $this->endSteps  = $endSteps;
+        $this->endSteps = $endSteps;
     }
 
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->getName();
+        return $this->name;
     }
 
-    /**
-     * Get process steps.
-     *
-     * @return ArrayCollection
-     */
-    public function getSteps()
+    public function getSteps(): Collection
     {
         return $this->steps;
     }
 
-    /**
-     * Returns a step by its name.
-     *
-     * @param string $name
-     *
-     * @return \Lexik\Bundle\WorkflowBundle\Flow\Step
-     */
-    public function getStep($name)
+    public function getStep(string $name): ?Step
     {
         return $this->steps->get($name);
     }
 
-    /**
-     * Returns the first step.
-     *
-     * @return string
-     */
-    public function getStartStep()
+    public function getStartStep(): string
     {
         return $this->startStep;
     }
 
-    /**
-     * Returns an array of step name.
-     *
-     * @return array
-     */
-    public function getEndSteps()
+    public function getEndSteps(): array
     {
         return $this->endSteps;
     }
