@@ -31,7 +31,7 @@ final class ProcessHandlerTest extends TestCase
     protected $em;
 
     /**
-     * @var ModelStorage
+     * @var ModelStorageƒ
      */
     protected $modelStorage;
 
@@ -308,7 +308,7 @@ final class ProcessHandlerTest extends TestCase
     public function testGetProcessStepInvalidStepName(): void
     {
         self::expectException(WorkflowException::class);
-        self::expectDeprecationMessage("Can't find step named \"step_unknown\" in process \"document_process\".");
+        self::expectExceptionMessage("Can't find step named \"step_unknown\" in process \"document_process\".");
 
         $reflectionClass = new ReflectionClass('Lexik\Bundle\WorkflowBundle\Handler\ProcessHandler');
         $method = $reflectionClass->getMethod('getProcessStep');
