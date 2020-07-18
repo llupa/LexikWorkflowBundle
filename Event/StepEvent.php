@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Lexik\Bundle\WorkflowBundle\Event;
 
 use Lexik\Bundle\WorkflowBundle\Entity\ModelState;
-use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
 use Lexik\Bundle\WorkflowBundle\Flow\Step;
+use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**

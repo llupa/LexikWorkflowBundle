@@ -6,11 +6,9 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class FakeAuthorizationChecker implements AuthorizationCheckerInterface
 {
-    private $authenticatedUser;
-
     public $testedAttributes = null;
-
     public $testedObject = null;
+    private $authenticatedUser;
 
     public function __construct($authenticatedUser)
     {

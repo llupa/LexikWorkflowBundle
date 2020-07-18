@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Lexik\Bundle\WorkflowBundle\Flow;
 
-use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
 use Lexik\Bundle\WorkflowBundle\Exception\WorkflowException;
+use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
 use function call_user_func;
 
 /**
@@ -19,8 +19,8 @@ class NextStateOr implements NextStateInterface
 
     public function __construct(string $name, string $type, array $targets)
     {
-        $this->name    = $name;
-        $this->type    = $type;
+        $this->name = $name;
+        $this->type = $type;
         $this->targets = $targets;
     }
 
@@ -45,18 +45,19 @@ class NextStateOr implements NextStateInterface
         while ($i < count($this->targets) && null === $target) {
             $data = $this->targets[$i];
 
-            $isDefault = ( null === $data['condition_object'] && null === $data['condition_method'] );
-            $callback = array($data['condition_object'], $data['condition_method']);
+            $isDefault = (null === $data['condition_object'] && null === $data['condition_method']);
+            $callback = [$data['condition_object'], $data['condition_method']];
 
-            if ( $isDefault || true === call_user_func($callback, $model) ) {
+            if ($isDefault || true === call_user_func($callback, $model)) {
                 $target = $data['target'];
             }
 
             $i++;
         }
 
-        if (! $target instanceof Node) {
-            throw new WorkflowException(sprintf('Next state "%s": can\'t choose target step according to given OR conditions.', $this->name));
+        if (!$target instanceof Node) {
+            throw new WorkflowException(sprintf('Next state "%s": can\'t choose target step according to given OR conditions.',
+                $this->name));
         }
 
         return $target;

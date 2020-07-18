@@ -1,18 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Lexik\Bundle\WorkflowBundle\Tests;
 
-use Symfony\Component\Yaml\Parser;
-use Symfony\Component\Security\Core\SecurityContext;
-
+use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\Driver\SimplifiedXmlDriver;
+use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\ORM\Tools\Setup;
+use PHPUnit\Framework\TestCase as BaseTestCase;
+use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
+use Symfony\Component\Yaml\Parser;
 
-class TestCase extends \PHPUnit_Framework_TestCase
+abstract class TestCase extends BaseTestCase
 {
     /**
-     * @return array
+     * Returns a mock instance of a AuthorizationChecker.
+     *
+     * @return AuthorizationChecker
      */
-    protected function getConfig()
+    public function getMockAuthorizationChecker()
+    {
+        $checker = $this->getMockBuilder('Symfony\Component\Security\Core\Authorization\AuthorizationChecker')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        return $checker;
+    }
+
+    protected function getConfig(): array
     {
         $yaml = <<<EOF
 processes:
@@ -39,13 +56,10 @@ processes:
 EOF;
         $parser = new Parser();
 
-        return  $parser->parse($yaml);
+        return $parser->parse($yaml);
     }
 
-    /**
-     * @return array
-     */
-    protected function getSimpleConfig()
+    protected function getSimpleConfig(): array
     {
         $yaml = <<<EOF
 processes:
@@ -55,40 +69,28 @@ processes:
 EOF;
         $parser = new Parser();
 
-        return  $parser->parse($yaml);
+        return $parser->parse($yaml);
     }
 
-    /**
-     * Create the database schema.
-     *
-     * @param EntityManager $em
-     */
-    protected function createSchema(EntityManager $em)
+    protected function createSchema(EntityManager $em): void
     {
-        $schemaTool = new \Doctrine\ORM\Tools\SchemaTool($em);
-        //$schemaTool->dropSchema($em->getMetadataFactory()->getAllMetadata());
+        $schemaTool = new SchemaTool($em);
         $schemaTool->createSchema($em->getMetadataFactory()->getAllMetadata());
     }
 
-    /**
-     * EntityManager object together with annotation mapping driver and
-     * pdo_sqlite database in memory
-     *
-     * @return EntityManager
-     */
-    protected function getSqliteEntityManager()
+    protected function getSqliteEntityManager(): EntityManager
     {
-        $cache = new \Doctrine\Common\Cache\ArrayCache();
+        $cache = new ArrayCache();
 
         // xml driver
-        $xmlDriver = new \Doctrine\ORM\Mapping\Driver\SimplifiedXmlDriver(array(
+        $xmlDriver = new SimplifiedXmlDriver([
             __DIR__.'/../Resources/config/doctrine' => 'Lexik\Bundle\WorkflowBundle\Entity',
-        ));
+        ]);
 
         // configuration mock
-        $config = \Doctrine\ORM\Tools\Setup::createAnnotationMetadataConfiguration(array(
+        $config = Setup::createAnnotationMetadataConfiguration([
             __DIR__.'/../Entity',
-        ), false, null, null, false);
+        ], false, null, null, false);
         $config->setMetadataDriverImpl($xmlDriver);
         $config->setMetadataCacheImpl($cache);
         $config->setQueryCacheImpl($cache);
@@ -98,27 +100,13 @@ EOF;
         $config->setClassMetadataFactoryName('Doctrine\ORM\Mapping\ClassMetadataFactory');
         $config->setDefaultRepositoryClassName('Doctrine\ORM\EntityRepository');
 
-        $conn = array(
+        $conn = [
             'driver' => 'pdo_sqlite',
             'memory' => true,
-        );
+        ];
 
         $em = EntityManager::create($conn, $config);
 
         return $em;
-    }
-
-    /**
-     * Returns a mock instance of a AuthorizationChecker.
-     *
-     * @return \Symfony\Component\Security\Core\Authorization\AuthorizationChecker
-     */
-    public function getMockAuthorizationChecker()
-    {
-        $checker = $this->getMockBuilder('Symfony\Component\Security\Core\Authorization\AuthorizationChecker')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        return $checker;
     }
 }

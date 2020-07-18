@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Lexik\Bundle\WorkflowBundle\Event;
 
-use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
 use Lexik\Bundle\WorkflowBundle\Flow\Step;
-use Lexik\Bundle\WorkflowBundle\Validation\ViolationList;
+use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
 use Lexik\Bundle\WorkflowBundle\Validation\Violation;
+use Lexik\Bundle\WorkflowBundle\Validation\ViolationList;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -22,21 +22,30 @@ class ValidateStepEvent extends Event
 
     public function __construct(Step $step, ModelInterface $model, ViolationList $violationList)
     {
-        $this->step          = $step;
-        $this->model         = $model;
+        $this->step = $step;
+        $this->model = $model;
         $this->violationList = $violationList;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getStep(): Step
     {
         return $this->step;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getModel(): ModelInterface
     {
         return $this->model;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getViolationList(): ViolationList
     {
         return $this->violationList;

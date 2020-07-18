@@ -17,7 +17,6 @@ env:
     - SYMFONY_VERSION=3.4.*
 
 before_install:
-    - curl -sSfL -o ~/.phpenv/versions/${TRAVIS_PHP_VERSION}/bin/phpunit https://phar.phpunit.de/phpunit-5.7.phar
     - composer require symfony/framework-bundle:${SYMFONY_VERSION} --no-update
     - composer require doctrine/orm:^2.4 --no-update
 

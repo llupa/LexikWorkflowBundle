@@ -11,8 +11,11 @@ use Lexik\Bundle\WorkflowBundle\Entity\ModelState;
 
 class ModelStateRepository extends EntityRepository
 {
-    public function findLatestModelState(string $workflowIdentifier, string $processName, string $stepName = null): ?ModelState
-    {
+    public function findLatestModelState(
+        string $workflowIdentifier,
+        string $processName,
+        string $stepName = null
+    ): ?ModelState {
         $qb = $this->createQueryBuilder('ms');
         $qb
             ->andWhere('ms.workflowIdentifier = :workflow_identifier')
@@ -41,8 +44,7 @@ class ModelStateRepository extends EntityRepository
             ->andWhere('ms.processName = :process')
             ->orderBy('ms.createdAt', 'ASC')
             ->setParameter('workflow_identifier', $workflowIdentifier)
-            ->setParameter('process', $processName)
-        ;
+            ->setParameter('process', $processName);
 
         if ($successOnly) {
             $qb->andWhere('ms.successful = :success')
@@ -74,7 +76,7 @@ class ModelStateRepository extends EntityRepository
      */
     public function setStates($objects, array $processes, bool $onlySuccess)
     {
-        $objects = ( ! is_array($objects) && ! $objects instanceof ArrayAccess) ? [$objects] : $objects;
+        $objects = (!is_array($objects) && !$objects instanceof ArrayAccess) ? [$objects] : $objects;
 
         if (0 === count($objects)) {
             return;

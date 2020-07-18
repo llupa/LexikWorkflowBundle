@@ -17,7 +17,7 @@ abstract class Node
 
     public function __construct(string $name, array $nextStates = [])
     {
-        $this->name       = $name;
+        $this->name = $name;
         $this->nextStates = $nextStates;
     }
 
@@ -31,18 +31,18 @@ abstract class Node
         return $this->nextStates;
     }
 
-    public function hasNextState(string $name): bool
-    {
-        return in_array($name, array_keys($this->nextStates));
-    }
-
     public function getNextState(string $name): ?NextStateInterface
     {
-        if ( !$this->hasNextState($name) ) {
+        if (!$this->hasNextState($name)) {
             return null;
         }
 
         return $this->nextStates[$name];
+    }
+
+    public function hasNextState(string $name): bool
+    {
+        return in_array($name, array_keys($this->nextStates));
     }
 
     public function addNextState(string $name, string $type, Node $target): void

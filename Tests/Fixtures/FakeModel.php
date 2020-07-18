@@ -8,19 +8,14 @@ use Lexik\Bundle\WorkflowBundle\Model\ModelStateInterface;
 
 class FakeModel implements ModelInterface, ModelStateInterface
 {
-    const STATUS_CREATE   = 1;
+    const STATUS_CREATE = 1;
     const STATUS_VALIDATE = 2;
-    const STATUS_REMOVE   = 3;
-
+    const STATUS_REMOVE = 3;
+    public $data = [];
+    public $states = [];
     protected $status;
-
     protected $content;
-
     protected $object;
-
-    public $data = array();
-
-    public $states = array();
 
     public function __construct()
     {
@@ -52,14 +47,14 @@ class FakeModel implements ModelInterface, ModelStateInterface
         return $this->object;
     }
 
-    public function setStatus($status)
-    {
-        $this->status = $status;
-    }
-
     public function getStatus()
     {
         return $this->status;
+    }
+
+    public function setStatus($status)
+    {
+        $this->status = $status;
     }
 
     public function getContent()

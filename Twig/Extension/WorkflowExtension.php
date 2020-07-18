@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Lexik\Bundle\WorkflowBundle\Twig\Extension;
 
 use Lexik\Bundle\WorkflowBundle\Entity\ModelState;
-use Lexik\Bundle\WorkflowBundle\Handler\ProcessAggregator;
 use Lexik\Bundle\WorkflowBundle\Flow\Step;
+use Lexik\Bundle\WorkflowBundle\Handler\ProcessAggregator;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 use function implode;

@@ -27,7 +27,7 @@ class ViolationList implements IteratorAggregate, Countable, ArrayAccess
     {
         $output = '';
         foreach ($this->violations as $violation) {
-            $output .= $violation->getMessage() . "\n";
+            $output .= $violation->getMessage()."\n";
         }
 
         return $output;
@@ -78,7 +78,7 @@ class ViolationList implements IteratorAggregate, Countable, ArrayAccess
 
     public function toArray(): array
     {
-        $data = array();
+        $data = [];
         foreach ($this->violations as $violation) {
             $data[] = $violation->getMessage();
         }

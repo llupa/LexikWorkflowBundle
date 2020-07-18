@@ -20,9 +20,9 @@ class Process extends Node
     {
         parent::__construct($name);
 
-        $this->steps     = new ArrayCollection($steps);
+        $this->steps = new ArrayCollection($steps);
         $this->startStep = $startStep;
-        $this->endSteps  = $endSteps;
+        $this->endSteps = $endSteps;
     }
 
     public function __toString(): string

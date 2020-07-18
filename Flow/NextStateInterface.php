@@ -11,7 +11,7 @@ use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
  */
 interface NextStateInterface
 {
-    const TYPE_STEP    = 'step';
+    const TYPE_STEP = 'step';
     const TYPE_STEP_OR = 'step_or';
     const TYPE_PROCESS = 'process';
 

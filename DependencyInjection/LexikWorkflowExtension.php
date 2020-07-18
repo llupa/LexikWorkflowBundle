@@ -6,12 +6,12 @@ namespace Lexik\Bundle\WorkflowBundle\DependencyInjection;
 
 use InvalidArgumentException;
 use Lexik\Bundle\WorkflowBundle\Flow\NextStateInterface;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
-use Symfony\Component\DependencyInjection\Loader;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\Yaml\Parser;
 
 class LexikWorkflowExtension extends Extension
@@ -39,23 +39,12 @@ class LexikWorkflowExtension extends Extension
         }
     }
 
-    protected function buildProcessHandlers(array $processReferences, ContainerBuilder $container, string $processHandlerClass): void
-    {
-        foreach ($processReferences as $processName => $processReference) {
-            $definition = new Definition($processHandlerClass, array(
-                new Reference(sprintf('lexik_workflow.process.%s', $processName)),
-                new Reference('lexik_workflow.model_storage'),
-                new Reference('event_dispatcher'),
-            ));
-
-            $definition->addMethodCall('setAuthorizationChecker', array(new Reference('security.authorization_checker')));
-
-            $container->setDefinition(sprintf('lexik_workflow.handler.%s', $processName), $definition);
-        }
-    }
-
-    protected function buildProcesses(array $processes, ContainerBuilder $container, string $processClass, string $stepClass): array
-    {
+    protected function buildProcesses(
+        array $processes,
+        ContainerBuilder $container,
+        string $processClass,
+        string $stepClass
+    ): array {
         $processReferences = [];
 
         foreach ($processes as $processName => $processConfig) {
@@ -66,7 +55,8 @@ class LexikWorkflowExtension extends Extension
 
                     $processConfig = array_merge($processConfig, $config[$processName]);
                 } else {
-                    throw new InvalidArgumentException(sprintf('Can\'t load process from file "%s"', $processConfig['import']));
+                    throw new InvalidArgumentException(sprintf('Can\'t load process from file "%s"',
+                        $processConfig['import']));
                 }
             }
 
@@ -80,7 +70,7 @@ class LexikWorkflowExtension extends Extension
             ]);
 
             $definition->setPublic(false)
-                       ->addTag('lexik_workflow.process', ['alias' => $processName]);
+                ->addTag('lexik_workflow.process', ['alias' => $processName]);
 
             $processReference = sprintf('lexik_workflow.process.%s', $processName);
             $container->setDefinition($processReference, $definition);
@@ -91,8 +81,12 @@ class LexikWorkflowExtension extends Extension
         return $processReferences;
     }
 
-    protected function buildSteps(string $processName, array $steps, ContainerBuilder $container, string $stepClass): array
-    {
+    protected function buildSteps(
+        string $processName,
+        array $steps,
+        ContainerBuilder $container,
+        string $stepClass
+    ): array {
         $stepReferences = [];
 
         foreach ($steps as $stepName => $stepConfig) {
@@ -108,7 +102,7 @@ class LexikWorkflowExtension extends Extension
             $this->addStepNextStates($definition, $stepConfig['next_states'], $processName);
 
             $definition->setPublic(false)
-                       ->addTag(sprintf('lexik_workflow.process.%s.step', $processName), array('alias' => $stepName));
+                ->addTag(sprintf('lexik_workflow.process.%s.step', $processName), ['alias' => $stepName]);
 
             $stepReference = sprintf('lexik_workflow.process.%s.step.%s', $processName, $stepName);
             $container->setDefinition($stepReference, $definition);
@@ -129,7 +123,7 @@ class LexikWorkflowExtension extends Extension
                 $step->addMethodCall('addNextState', [
                     $stateName,
                     $data['type'],
-                    new Reference(sprintf('lexik_workflow.process.%s.step.%s', $processName, $data['target']))
+                    new Reference(sprintf('lexik_workflow.process.%s.step.%s', $processName, $data['target'])),
                 ]);
 
             } elseif (NextStateInterface::TYPE_STEP_OR === $data['type']) {
@@ -144,7 +138,8 @@ class LexikWorkflowExtension extends Extension
                     }
 
                     $targets[] = [
-                        'target'           => new Reference(sprintf('lexik_workflow.process.%s.step.%s', $processName, $stepName)),
+                        'target' => new Reference(sprintf('lexik_workflow.process.%s.step.%s', $processName,
+                            $stepName)),
                         'condition_object' => null !== $serviceId ? new Reference($serviceId) : null,
                         'condition_method' => $method,
                     ];
@@ -156,12 +151,31 @@ class LexikWorkflowExtension extends Extension
                 $step->addMethodCall('addNextState', [
                     $stateName,
                     $data['type'],
-                    new Reference(sprintf('lexik_workflow.process.%s', $data['target']))
+                    new Reference(sprintf('lexik_workflow.process.%s', $data['target'])),
                 ]);
 
             } else {
-                throw new InvalidArgumentException(sprintf('Unknown type "%s", please use "step" or "process"', $data['type']));
+                throw new InvalidArgumentException(sprintf('Unknown type "%s", please use "step" or "process"',
+                    $data['type']));
             }
+        }
+    }
+
+    protected function buildProcessHandlers(
+        array $processReferences,
+        ContainerBuilder $container,
+        string $processHandlerClass
+    ): void {
+        foreach ($processReferences as $processName => $processReference) {
+            $definition = new Definition($processHandlerClass, [
+                new Reference(sprintf('lexik_workflow.process.%s', $processName)),
+                new Reference('lexik_workflow.model_storage'),
+                new Reference('event_dispatcher'),
+            ]);
+
+            $definition->addMethodCall('setAuthorizationChecker', [new Reference('security.authorization_checker')]);
+
+            $container->setDefinition(sprintf('lexik_workflow.handler.%s', $processName), $definition);
         }
     }
 }

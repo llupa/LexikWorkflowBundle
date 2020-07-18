@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Lexik\Bundle\WorkflowBundle\Flow;
 
-use function Symfony\Component\String\b;
-
 /**
  * @author Cédric Girard <c.girard@lexik.fr>
  */
@@ -16,14 +14,20 @@ class Step extends Node
     protected $modelStatus;
     protected $onInvalid;
 
-    public function __construct(string $name, string $label, array $nextStates = [], array $modelStatus = array(), array $roles = array(), string $onInvalid = null)
-    {
+    public function __construct(
+        string $name,
+        string $label,
+        array $nextStates = [],
+        array $modelStatus = [],
+        array $roles = [],
+        string $onInvalid = null
+    ) {
         parent::__construct($name, $nextStates);
 
-        $this->label       = $label;
+        $this->label = $label;
         $this->modelStatus = $modelStatus;
-        $this->roles       = $roles;
-        $this->onInvalid   = $onInvalid;
+        $this->roles = $roles;
+        $this->onInvalid = $onInvalid;
     }
 
     public function __toString(): string
