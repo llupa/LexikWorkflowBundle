@@ -1,87 +1,57 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Lexik\Bundle\WorkflowBundle\Event;
 
-use Symfony\Component\EventDispatcher\Event;
-
-use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
 use Lexik\Bundle\WorkflowBundle\Flow\Step;
-use Lexik\Bundle\WorkflowBundle\Validation\ViolationList;
+use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
 use Lexik\Bundle\WorkflowBundle\Validation\Violation;
+use Lexik\Bundle\WorkflowBundle\Validation\ViolationList;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * Validate step access event.
- *
  * @author Jeremy Barthe <j.barthe@lexik.fr>
  * @author Gilles Gauthier <g.gauthier@lexik.fr>
  */
 class ValidateStepEvent extends Event
 {
-    /**
-     * @var Step
-     */
     private $step;
-
-    /**
-     * @var ModelInterface
-     */
     private $model;
-
-    /**
-     * @var ViolationList
-     */
     private $violationList;
 
-    /**
-     * Constructor.
-     *
-     * @param Step           $step
-     * @param ModelInterface $model
-     * @param ViolationList  $violationList
-     */
     public function __construct(Step $step, ModelInterface $model, ViolationList $violationList)
     {
-        $this->step          = $step;
-        $this->model         = $model;
+        $this->step = $step;
+        $this->model = $model;
         $this->violationList = $violationList;
     }
 
     /**
-     * Returns the reached step.
-     *
-     * @return Step
+     * @codeCoverageIgnore
      */
-    public function getStep()
+    public function getStep(): Step
     {
         return $this->step;
     }
 
     /**
-     * Returns the model.
-     *
-     * @return ModelInterface
+     * @codeCoverageIgnore
      */
-    public function getModel()
+    public function getModel(): ModelInterface
     {
         return $this->model;
     }
 
     /**
-     * Returns the violation list.
-     *
-     * @return ViolationList
+     * @codeCoverageIgnore
      */
-    public function getViolationList()
+    public function getViolationList(): ViolationList
     {
         return $this->violationList;
     }
 
-    /**
-     * Proxy method to add a violation.
-     *
-     * @param $message
-     */
-    public function addViolation($message)
+    public function addViolation(string $message)
     {
         $this->violationList->add(new Violation($message));
     }

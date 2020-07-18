@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Lexik\Bundle\WorkflowBundle\Handler;
 
 use Lexik\Bundle\WorkflowBundle\Exception\WorkflowException;
@@ -29,7 +31,7 @@ class ProcessAggregator
     /**
      * Returns a process by its name.
      *
-     * @param  string                                   $name
+     * @param string $name
      * @return \Lexik\Bundle\WorkflowBundle\Flow\Process
      *
      * @throws WorkflowException

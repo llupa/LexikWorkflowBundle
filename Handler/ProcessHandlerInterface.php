@@ -1,56 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Lexik\Bundle\WorkflowBundle\Handler;
 
 use Lexik\Bundle\WorkflowBundle\Entity\ModelState;
 use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
 
 /**
- * Process handler interface.
- *
  * @author Cédric Girard <c.girard@lexik.fr>
  */
 interface ProcessHandlerInterface
 {
-    /**
-     * Start the current process for the given model.
-     *
-     * @param  ModelInterface $model
-     * @return ModelState
-     */
-    public function start(ModelInterface $model);
+    public function start(ModelInterface $model): ModelState;
 
-    /**
-     * Tries to reach a step with the given model.
-     *
-     * @param  ModelInterface $model
-     * @param  string         $stateName
-     * @return ModelState
-     */
-    public function reachNextState(ModelInterface $model, $stateName);
+    public function reachNextState(ModelInterface $model, string $stateName): ModelState;
 
-    /**
-     * Returns the current model state.
-     *
-     * @param  ModelInterface $model
-     * @return ModelState
-     */
-    public function getCurrentState(ModelInterface $model);
+    public function getCurrentState(ModelInterface $model): ?ModelState;
 
-    /**
-     * Returns all model state of the given model object.
-     *
-     * @param  ModelInterface $model
-     * @param  boolean        $successOnly
-     * @return array
-     */
-    public function getAllStates(ModelInterface $model, $successOnly = true);
+    public function getAllStates(ModelInterface $model, bool $successOnly = true): array;
 
-    /**
-     * Returns true if the given model has completed the process.
-     *
-     * @param  ModelInterface $model
-     * @return boolean
-     */
-    public function isProcessComplete(ModelInterface $model);
+    public function isProcessComplete(ModelInterface $model): bool;
 }
