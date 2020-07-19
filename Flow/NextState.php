@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Lexik\Bundle\WorkflowBundle\Flow;
 
 use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
@@ -11,55 +13,28 @@ use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
  */
 class NextState implements NextStateInterface
 {
-    /**
-     * @var string
-     */
     protected $name;
-
-    /**
-     * @var string
-     */
     protected $type;
-
-    /**
-     * @var Step
-     */
     protected $target;
 
-    /**
-     * Construct.
-     *
-     * @param string $name
-     * @param string $type
-     * @param Node   $target
-     */
-    public function __construct($name, $type, Node $target)
+    public function __construct(string $name, string $type, Step $target)
     {
         $this->name = $name;
         $this->type = $type;
         $this->target = $target;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getTarget(ModelInterface $model = null)
+    public function getTarget(ModelInterface $model = null): Step
     {
         return $this->target;
     }

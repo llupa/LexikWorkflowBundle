@@ -1,24 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Lexik\Bundle\WorkflowBundle\DependencyInjection;
 
+use Lexik\Bundle\WorkflowBundle\Flow\NextStateInterface;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-use Lexik\Bundle\WorkflowBundle\Flow\NextStateInterface;
-
-/**
- * This is the class that validates and merges configuration from your app/config files
- *
- * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html#cookbook-bundles-extension-config-class}
- */
 class Configuration implements ConfigurationInterface
 {
-    /**
-     * {@inheritDoc}
-     */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('lexik_workflow');
@@ -26,18 +19,12 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->addDefaultsIfNotSet()
             ->append($this->createClassesNodeDefinition())
-            ->append($this->createProcessesNodeDefinition())
-        ;
+            ->append($this->createProcessesNodeDefinition());
 
         return $treeBuilder;
     }
 
-    /**
-     * Create a configuration node to customize classes used by the bundle.
-     *
-     * @return ArrayNodeDefinition
-     */
-    private function createClassesNodeDefinition()
+    private function createClassesNodeDefinition(): ArrayNodeDefinition
     {
         $classesNode = new ArrayNodeDefinition('classes');
 
@@ -53,18 +40,12 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('step')
                     ->defaultValue('Lexik\Bundle\WorkflowBundle\Flow\Step')
                 ->end()
-            ->end()
-        ;
+            ->end();
 
         return $classesNode;
     }
 
-    /**
-     * Create a configuration node to define processes.
-     *
-     * @return ArrayNodeDefinition
-     */
-    private function createProcessesNodeDefinition()
+    private function createProcessesNodeDefinition(): ArrayNodeDefinition
     {
         $processesNode = new ArrayNodeDefinition('processes');
 
@@ -81,34 +62,26 @@ class Configuration implements ConfigurationInterface
                     ->scalarNode('import')
                         ->defaultNull()
                     ->end()
-
                     ->scalarNode('start')
                         ->defaultNull()
                     ->end()
-
                     ->arrayNode('end')
-                        ->defaultValue(array())
+                        ->defaultValue([])
                         ->prototype('scalar')->end()
                     ->end()
                 ->end()
                 ->append($this->createStepsNodeDefinition())
-            ->end()
-        ;
+            ->end();
 
         return $processesNode;
     }
 
-    /**
-     * Create a configuration node to define the steps of a process.
-     *
-     * @return ArrayNodeDefinition
-     */
-    private function createStepsNodeDefinition()
+    private function createStepsNodeDefinition(): ArrayNodeDefinition
     {
         $stepsNode = new ArrayNodeDefinition('steps');
 
         $stepsNode
-            ->defaultValue(array())
+            ->defaultValue([])
             ->useAttributeAsKey('name')
             ->prototype('array')
                 ->addDefaultsIfNotSet()
@@ -116,11 +89,9 @@ class Configuration implements ConfigurationInterface
                     ->scalarNode('label')
                         ->defaultValue('')
                     ->end()
-
                     ->arrayNode('roles')
                         ->prototype('scalar')->end()
                     ->end()
-
                     ->arrayNode('model_status')
                         ->validate()
                             ->ifTrue(function ($value) {
@@ -128,36 +99,29 @@ class Configuration implements ConfigurationInterface
                             })
                             ->thenInvalid('You must specify an array with [ method, constant ]')
                             ->ifTrue(function ($value) {
-                                return ( ! defined($value[1]));
+                                return (!defined($value[1]));
                             })
                             ->thenInvalid('You must specify a valid constant name as second parameter')
                         ->end()
                         ->prototype('scalar')->end()
                     ->end()
-
                     ->scalarNode('on_invalid')
                         ->defaultNull()
                     ->end()
                 ->end()
                 ->append($this->createNextStatesNodeDefinition())
-            ->end()
-        ;
+            ->end();
 
         return $stepsNode;
     }
 
-    /**
-     * Create a configuration node to define available next states of a step (or a processs)
-     *
-     * @return ArrayNodeDefinition
-     */
-    private function createNextStatesNodeDefinition()
+    private function createNextStatesNodeDefinition(): ArrayNodeDefinition
     {
-        $flowTypes = array(
+        $flowTypes = [
             NextStateInterface::TYPE_STEP,
             NextStateInterface::TYPE_STEP_OR,
             NextStateInterface::TYPE_PROCESS,
-        );
+        ];
 
         $nextStatesNode = new ArrayNodeDefinition('next_states');
 
@@ -169,17 +133,15 @@ class Configuration implements ConfigurationInterface
                     ->scalarNode('type')
                         ->defaultValue('step')
                         ->validate()
-                             ->ifNotInArray($flowTypes)
-                             ->thenInvalid('Invalid next element type "%s". Please use one of the following types: '.implode(', ', $flowTypes))
+                            ->ifNotInArray($flowTypes)
+                            ->thenInvalid('Invalid next element type "%s". Please use one of the following types: '.implode(', ', $flowTypes))
                         ->end()
                     ->end()
-
                     ->variableNode('target')
                         ->cannotBeEmpty()
                     ->end()
                 ->end()
-            ->end()
-        ;
+            ->end();
 
         return $nextStatesNode;
     }

@@ -1,21 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Lexik\Bundle\WorkflowBundle\Tests\Validation;
 
+use InvalidArgumentException;
 use Lexik\Bundle\WorkflowBundle\Tests\TestCase;
-use Lexik\Bundle\WorkflowBundle\Validation\ViolationList;
 use Lexik\Bundle\WorkflowBundle\Validation\Violation;
+use Lexik\Bundle\WorkflowBundle\Validation\ViolationList;
+use OutOfBoundsException;
 
-class ViolationListTest extends TestCase
+final class ViolationListTest extends TestCase
 {
-    public function testAdd()
+    public function testAdd(): void
     {
         $violationList = new ViolationList();
         $violationList->add(new Violation('Violation test'));
-        $this->assertEquals(1, count($violationList));
+        self::assertCount(1, $violationList);
     }
 
-    public function testToString()
+    public function testToString(): void
     {
         $violationList = new ViolationList();
         $violationList->add(new Violation('Violation test n°1'));
@@ -27,38 +31,39 @@ Violation test n°2
 
 EOF;
 
-        $this->assertEquals($expectedResult, $violationList->__toString());
+        self::assertEquals($expectedResult, (string)$violationList);
     }
 
-    public function testArrayAccess()
+    public function testArrayAccess(): void
     {
         $violationList = new ViolationList();
         $violation = new Violation('Violation test');
 
         $violationList->add($violation);
-        $this->assertEquals(1, count($violationList));
-
-        $this->assertSame($violation, $violationList[0]);
+        self::assertCount(1, $violationList);
+        self::assertSame($violation, $violationList[0]);
 
         $violationList[1] = $violation;
-        $this->assertSame($violation, $violationList[1]);
-        $this->assertEquals(2, count($violationList));
+        self::assertSame($violation, $violationList[1]);
+        self::assertCount(2, $violationList);
 
         unset($violationList[1]);
-        $this->assertFalse(isset($violationList[1]));
+        self::assertFalse(isset($violationList[1]));
 
         try {
             $test = $violationList[1];
             $this->fail('An expected OutOfBoundsException has not been raised.');
-        } catch (\OutOfBoundsException $e) {}
+        } catch (OutOfBoundsException $e) {
+        }
 
         try {
             $violationList[1] = 'Wrong argument';
             $this->fail('An expected InvalidArgumentException has not been raised.');
-        } catch (\InvalidArgumentException $e) {}
+        } catch (InvalidArgumentException $e) {
+        }
 
         foreach ($violationList as $key => $violation) {
-            $this->assertSame($violation, $violationList[$key]);
+            self::assertSame($violation, $violationList[$key]);
         }
     }
 }
