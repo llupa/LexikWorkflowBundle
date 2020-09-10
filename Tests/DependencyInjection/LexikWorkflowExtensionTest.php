@@ -8,6 +8,7 @@ use Lexik\Bundle\WorkflowBundle\DependencyInjection\LexikWorkflowExtension;
 use Lexik\Bundle\WorkflowBundle\Flow\Process;
 use Lexik\Bundle\WorkflowBundle\Handler\ProcessAggregator;
 use Lexik\Bundle\WorkflowBundle\Handler\ProcessHandler;
+use Lexik\Bundle\WorkflowBundle\Handler\ProcessHandlerPool;
 use Lexik\Bundle\WorkflowBundle\Tests\TestCase;
 use stdClass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -50,5 +51,13 @@ final class LexikWorkflowExtensionTest extends TestCase
         $processHandler = $container->get('lexik_workflow.handler.document_proccess');
 
         self::assertTrue($processHandler instanceof ProcessHandler);
+
+        $processHandlerPool = $container->get(ProcessHandlerPool::class);
+
+        self::assertInstanceOf(ProcessHandlerPool::class, $processHandlerPool);
+        self::assertInstanceOf(ProcessHandler::class, $processHandlerPool->getProcessHandler('lexik_workflow.handler.document_proccess'));
+        self::assertInstanceOf(ProcessHandler::class, $processHandlerPool->getProcessHandler('document_proccess'));
+        self::assertNull($processHandlerPool->getProcessHandler('lexik_workflow.handler.fake_proccess'));
+        self::assertNull($processHandlerPool->getProcessHandler('fake_proccess'));
     }
 }

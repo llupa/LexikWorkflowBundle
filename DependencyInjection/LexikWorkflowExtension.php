@@ -6,6 +6,7 @@ namespace Lexik\Bundle\WorkflowBundle\DependencyInjection;
 
 use InvalidArgumentException;
 use Lexik\Bundle\WorkflowBundle\Flow\NextStateInterface;
+use Lexik\Bundle\WorkflowBundle\Handler\ProcessHandlerPool;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -166,6 +167,8 @@ class LexikWorkflowExtension extends Extension
         ContainerBuilder $container,
         string $processHandlerClass
     ): void {
+        $pool = $container->getDefinition(ProcessHandlerPool::class);
+
         foreach ($processReferences as $processName => $processReference) {
             $definition = new Definition($processHandlerClass, [
                 new Reference(sprintf('lexik_workflow.process.%s', $processName)),
@@ -175,7 +178,13 @@ class LexikWorkflowExtension extends Extension
 
             $definition->addMethodCall('setAuthorizationChecker', [new Reference('security.authorization_checker')]);
 
-            $container->setDefinition(sprintf('lexik_workflow.handler.%s', $processName), $definition);
+            $id = sprintf('lexik_workflow.handler.%s', $processName);
+
+            $container->setDefinition($id, $definition);
+
+            $pool
+                ->addMethodCall('addProcessHandler', [$id, $definition])
+                ->addMethodCall('addProcessHandler', [$processName, $definition]);
         }
     }
 }

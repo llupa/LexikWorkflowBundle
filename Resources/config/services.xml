@@ -14,6 +14,9 @@
             <argument type="collection"/>
         </service>
 
+        <service id="Lexik\Bundle\WorkflowBundle\Handler\ProcessHandlerPool" class="Lexik\Bundle\WorkflowBundle\Handler\ProcessHandlerPool">
+        </service>
+
         <service id="lexik_workflow.model_storage" class="%lexik_workflow.model_storage.class%">
             <argument type="service" id="doctrine.orm.entity_manager"/>
             <argument>%lexik_workflow.model_state.class%</argument>
