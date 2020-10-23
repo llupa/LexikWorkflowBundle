@@ -31,7 +31,7 @@ final class ProcessHandlerTest extends TestCase
     protected $em;
 
     /**
-     * @var ModelStorageƒ
+     * @var ModelStorage
      */
     protected $modelStorage;
 
