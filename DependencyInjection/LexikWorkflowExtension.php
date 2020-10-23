@@ -70,7 +70,8 @@ class LexikWorkflowExtension extends Extension
                 $processConfig['end'],
             ]);
 
-            $definition->setPublic(false)
+            $definition
+                ->setPublic(false)
                 ->addTag('lexik_workflow.process', ['alias' => $processName]);
 
             $processReference = sprintf('lexik_workflow.process.%s', $processName);
@@ -183,8 +184,8 @@ class LexikWorkflowExtension extends Extension
             $container->setDefinition($id, $definition);
 
             $pool
-                ->addMethodCall('addProcessHandler', [$id, $definition])
-                ->addMethodCall('addProcessHandler', [$processName, $definition]);
+                ->addMethodCall('addProcessHandler', [$id, new Reference($id)])
+                ->addMethodCall('addProcessHandler', [$processName, new Reference($id)]);
         }
     }
 }
