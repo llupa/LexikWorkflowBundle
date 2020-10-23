@@ -59,5 +59,7 @@ final class LexikWorkflowExtensionTest extends TestCase
         self::assertInstanceOf(ProcessHandler::class, $processHandlerPool->getProcessHandler('document_proccess'));
         self::assertNull($processHandlerPool->getProcessHandler('lexik_workflow.handler.fake_proccess'));
         self::assertNull($processHandlerPool->getProcessHandler('fake_proccess'));
+
+        self::assertSame($processHandler, $processHandlerPool->getProcessHandler('lexik_workflow.handler.document_proccess'));
     }
 }
