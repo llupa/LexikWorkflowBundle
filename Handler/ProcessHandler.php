@@ -82,9 +82,8 @@ class ProcessHandler implements ProcessHandlerInterface
             $modelState = $this->storage->newModelStateError($model, $this->process->getName(), $step->getName(),
                 $violations, $currentModelState);
 
-            // todo: swap places in Sf 4
             $eventName = sprintf('%s.%s.bad_credentials', $this->process->getName(), $step->getName());
-            $this->dispatcher->dispatch($eventName, new StepEvent($step, $model, $modelState));
+            $this->dispatcher->dispatch(new StepEvent($step, $model, $modelState), $eventName);
 
             if ($step->getOnInvalid()) {
                 $step = $this->getProcessStep($step->getOnInvalid());
@@ -96,8 +95,7 @@ class ProcessHandler implements ProcessHandlerInterface
 
         $event = new ValidateStepEvent($step, $model, new ViolationList());
         $eventName = sprintf('%s.%s.validate', $this->process->getName(), $step->getName());
-        // todo: swap places in Sf 4
-        $this->dispatcher->dispatch($eventName, $event);
+        $this->dispatcher->dispatch($event, $eventName);
 
         if (0 === count($event->getViolationList())) {
             $modelState = $this->storage->newModelStateSuccess($model, $this->process->getName(), $step->getName(),
@@ -110,15 +108,13 @@ class ProcessHandler implements ProcessHandlerInterface
             }
 
             $eventName = sprintf('%s.%s.reached', $this->process->getName(), $step->getName());
-            // todo: swap places in Sf 4
-            $this->dispatcher->dispatch($eventName, new StepEvent($step, $model, $modelState));
+            $this->dispatcher->dispatch(new StepEvent($step, $model, $modelState), $eventName);
         } else {
             $modelState = $this->storage->newModelStateError($model, $this->process->getName(), $step->getName(),
                 $event->getViolationList(), $currentModelState);
 
             $eventName = sprintf('%s.%s.validation_fail', $this->process->getName(), $step->getName());
-            // todo: swap places in Sf 4
-            $this->dispatcher->dispatch($eventName, new StepEvent($step, $model, $modelState));
+            $this->dispatcher->dispatch(new StepEvent($step, $model, $modelState), $eventName);
 
             if ($step->getOnInvalid()) {
                 $step = $this->getProcessStep($step->getOnInvalid());
@@ -166,8 +162,7 @@ class ProcessHandler implements ProcessHandlerInterface
         // pre validations
         $event = new ValidateStepEvent($step, $model, new ViolationList());
         $eventName = sprintf('%s.%s.%s.pre_validation', $this->process->getName(), $currentStep->getName(), $stateName);
-        // todo: swap places in Sf 4
-        $this->dispatcher->dispatch($eventName, $event);
+        $this->dispatcher->dispatch($event, $eventName);
 
         $modelState = null;
 
@@ -177,8 +172,7 @@ class ProcessHandler implements ProcessHandlerInterface
 
             $eventName = sprintf('%s.%s.%s.pre_validation_fail', $this->process->getName(), $currentStep->getName(),
                 $stateName);
-            // todo: swap places in Sf 4
-            $this->dispatcher->dispatch($eventName, new StepEvent($step, $model, $modelState));
+            $this->dispatcher->dispatch(new StepEvent($step, $model, $modelState), $eventName);
         } else {
             $modelState = $this->reachStep($model, $step, $currentModelState);
         }

@@ -15,7 +15,7 @@ php:
 matrix:
     fast_finish: true
 env:
-    - SYMFONY_VERSION=3.4.*
+    - SYMFONY_VERSION=4.4.*
 
 before_install:
     - curl -sSfL -o ~/.phpenv/versions/${TRAVIS_PHP_VERSION}/bin/phpunit https://phar.phpunit.de/phpunit-7.phar
