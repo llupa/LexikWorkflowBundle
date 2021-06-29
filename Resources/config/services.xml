@@ -18,7 +18,7 @@
         </service>
 
         <service id="lexik_workflow.model_storage" class="%lexik_workflow.model_storage.class%">
-            <argument type="service" id="doctrine.orm.entity_manager"/>
+            <argument type="service" id="doctrine"/>
             <argument>%lexik_workflow.model_state.class%</argument>
         </service>
 

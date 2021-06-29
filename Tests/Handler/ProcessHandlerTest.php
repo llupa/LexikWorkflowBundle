@@ -6,6 +6,7 @@ namespace Lexik\Bundle\WorkflowBundle\Tests\Handler;
 
 use DateTime;
 use Doctrine\ORM\EntityManager;
+use Doctrine\Persistence\ManagerRegistry;
 use Lexik\Bundle\WorkflowBundle\Entity\ModelState;
 use Lexik\Bundle\WorkflowBundle\Exception\WorkflowException;
 use Lexik\Bundle\WorkflowBundle\Flow\NextStateInterface;
@@ -31,7 +32,7 @@ final class ProcessHandlerTest extends TestCase
     protected $em;
 
     /**
-     * @var ModelStorageƒ
+     * @var ModelStorage
      */
     protected $modelStorage;
 
@@ -347,6 +348,11 @@ final class ProcessHandlerTest extends TestCase
         $this->em = $this->getSqliteEntityManager();
         $this->createSchema($this->em);
 
-        $this->modelStorage = new ModelStorage($this->em, 'Lexik\Bundle\WorkflowBundle\Entity\ModelState');
+        $registry = self::createMock(ManagerRegistry::class);
+        $registry
+            ->method('getManager')
+            ->willReturn($this->em);
+
+        $this->modelStorage = new ModelStorage($registry, 'Lexik\Bundle\WorkflowBundle\Entity\ModelState');
     }
 }
