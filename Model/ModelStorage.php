@@ -4,24 +4,21 @@ declare(strict_types=1);
 
 namespace Lexik\Bundle\WorkflowBundle\Model;
 
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectRepository;
 use Lexik\Bundle\WorkflowBundle\Entity\ModelState;
 use Lexik\Bundle\WorkflowBundle\Validation\ViolationList;
 
 class ModelStorage
 {
-    protected $om;
+    protected ManagerRegistry $registry;
+    protected string          $entityClass;
 
-    /**
-     * @var EntityRepository
-     */
-    protected $repository;
-
-    public function __construct(EntityManager $om, string $entityClass)
+    public function __construct(ManagerRegistry $registry, string $entityClass)
     {
-        $this->om = $om;
-        $this->repository = $this->om->getRepository($entityClass);
+        $this->registry    = $registry;
+        $this->entityClass = $entityClass;
     }
 
     public function findCurrentModelState(
@@ -29,7 +26,7 @@ class ModelStorage
         string $processName,
         string $stepName = null
     ): ?ModelState {
-        return $this->repository->findLatestModelState(
+        return $this->getRepository()->findLatestModelState(
             $model->getWorkflowIdentifier(),
             $processName,
             $stepName
@@ -38,7 +35,7 @@ class ModelStorage
 
     public function findAllModelStates(ModelInterface $model, string $processName, bool $successOnly = true): array
     {
-        return $this->repository->findModelStates(
+        return $this->getRepository()->findModelStates(
             $model->getWorkflowIdentifier(),
             $processName,
             $successOnly
@@ -56,9 +53,8 @@ class ModelStorage
         $modelState->setSuccessful(false);
         $modelState->setErrors($violationList->toArray());
 
-        //todo: drop single entity flush
-        $this->om->persist($modelState);
-        $this->om->flush($modelState);
+        $this->getManager()->persist($modelState);
+        $this->getManager()->flush();
 
         return $modelState;
     }
@@ -84,7 +80,7 @@ class ModelStorage
 
     public function deleteAllModelStates(ModelInterface $model, string $processName = null): int
     {
-        return $this->repository->deleteModelStates(
+        return $this->getRepository()->deleteModelStates(
             $model->getWorkflowIdentifier(),
             $processName
         );
@@ -99,9 +95,8 @@ class ModelStorage
         $modelState = $this->createModelState($model, $processName, $stepName, $previous);
         $modelState->setSuccessful(true);
 
-        //todo: drop single entity flush
-        $this->om->persist($modelState);
-        $this->om->flush($modelState);
+        $this->getManager()->persist($modelState);
+        $this->getManager()->flush();
 
         return $modelState;
     }
@@ -111,6 +106,16 @@ class ModelStorage
      */
     public function setStates($objects, array $processes = [], bool $onlySuccess = false)
     {
-        $this->repository->setStates($objects, $processes, $onlySuccess);
+        $this->getRepository()->setStates($objects, $processes, $onlySuccess);
+    }
+
+    protected function getManager(): ObjectManager
+    {
+        return $this->registry->getManager();
+    }
+
+    protected function getRepository(): ObjectRepository
+    {
+        return $this->getManager()->getRepository($this->entityClass);
     }
 }

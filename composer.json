@@ -32,10 +32,10 @@
     }
   ],
   "require": {
-    "php": "^7.1",
+    "php": "^7.4",
     "ext-json": "*",
     "symfony/framework-bundle": "~3.4",
-    "doctrine/orm": "^2.4",
+    "doctrine/orm": "^2.5",
     "symfony/security": "~3.4",
     "symfony/twig-bundle": "~3.4",
     "symfony/yaml": "~3.4",

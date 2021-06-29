@@ -7,9 +7,6 @@ cache:
         - $HOME/.composer/cache
 
 php:
-    - 7.1
-    - 7.2
-    - 7.3
     - 7.4
 
 matrix:
@@ -18,9 +15,9 @@ env:
     - SYMFONY_VERSION=3.4.*
 
 before_install:
-    - curl -sSfL -o ~/.phpenv/versions/${TRAVIS_PHP_VERSION}/bin/phpunit https://phar.phpunit.de/phpunit-7.phar
+    - curl -sSfL -o ~/.phpenv/versions/${TRAVIS_PHP_VERSION}/bin/phpunit https://phar.phpunit.de/phpunit-9.phar
     - composer require symfony/framework-bundle:${SYMFONY_VERSION} --no-update
-    - composer require doctrine/orm:^2.4 --no-update
+    - composer require doctrine/orm:^2.5 --no-update
 
 install: composer install --prefer-dist --no-interaction
 

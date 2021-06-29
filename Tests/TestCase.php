@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Lexik\Bundle\WorkflowBundle\Tests;
 
-use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\SimplifiedXmlDriver;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
+use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use Symfony\Component\Yaml\Parser;
@@ -78,10 +78,19 @@ EOF;
         $schemaTool->createSchema($em->getMetadataFactory()->getAllMetadata());
     }
 
+    protected function getMockManagerRegistry(): ManagerRegistry
+    {
+        $mockRegistry = self::createMock(ManagerRegistry::class);
+
+        $mockRegistry
+            ->method('getManager')
+            ->willReturn($this->getSqliteEntityManager());
+
+        return $mockRegistry;
+    }
+
     protected function getSqliteEntityManager(): EntityManager
     {
-        $cache = new ArrayCache();
-
         // xml driver
         $xmlDriver = new SimplifiedXmlDriver([
             __DIR__.'/../Resources/config/doctrine' => 'Lexik\Bundle\WorkflowBundle\Entity',
@@ -92,8 +101,6 @@ EOF;
             __DIR__.'/../Entity',
         ], false, null, null, false);
         $config->setMetadataDriverImpl($xmlDriver);
-        $config->setMetadataCacheImpl($cache);
-        $config->setQueryCacheImpl($cache);
         $config->setProxyDir(sys_get_temp_dir());
         $config->setProxyNamespace('Proxy');
         $config->setAutoGenerateProxyClasses(true);

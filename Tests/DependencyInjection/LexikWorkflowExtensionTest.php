@@ -22,6 +22,7 @@ final class LexikWorkflowExtensionTest extends TestCase
         $container = new ContainerBuilder();
 
         // fake entity manager and security context services
+        $container->set('doctrine', $this->getMockManagerRegistry());
         $container->set('doctrine.orm.entity_manager', $this->getSqliteEntityManager());
         $container->set('security.authorization_checker', $this->getMockAuthorizationChecker());
         $container->set('event_dispatcher', new EventDispatcher());
