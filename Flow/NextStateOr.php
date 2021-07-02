@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Lexik\Bundle\WorkflowBundle\Flow;
 
-use Lexik\Bundle\WorkflowBundle\Exception\WorkflowException;
+use Lexik\Bundle\WorkflowBundle\Exception\UnreachableStepException;
 use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
 use function call_user_func;
 
@@ -35,7 +35,7 @@ class NextStateOr implements NextStateInterface
     }
 
     /**
-     * @throws WorkflowException
+     * @throws UnreachableStepException
      */
     public function getTarget(ModelInterface $model): Step
     {
@@ -56,7 +56,7 @@ class NextStateOr implements NextStateInterface
         }
 
         if (!$target instanceof Node) {
-            throw new WorkflowException(sprintf('Next state "%s": can\'t choose target step according to given OR conditions.',
+            throw new UnreachableStepException(sprintf('Next state "%s": can\'t choose target step according to given OR conditions.',
                 $this->name));
         }
 

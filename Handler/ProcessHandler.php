@@ -8,7 +8,10 @@ use Lexik\Bundle\WorkflowBundle\Entity\ModelState;
 use Lexik\Bundle\WorkflowBundle\Event\StepEvent;
 use Lexik\Bundle\WorkflowBundle\Event\ValidateStepEvent;
 use Lexik\Bundle\WorkflowBundle\Exception\AccessDeniedException;
-use Lexik\Bundle\WorkflowBundle\Exception\WorkflowException;
+use Lexik\Bundle\WorkflowBundle\Exception\AlreadyStartedProcessException;
+use Lexik\Bundle\WorkflowBundle\Exception\StepNotFoundException;
+use Lexik\Bundle\WorkflowBundle\Exception\UnreachableStepException;
+use Lexik\Bundle\WorkflowBundle\Exception\UnstartedProcessException;
 use Lexik\Bundle\WorkflowBundle\Flow\Process;
 use Lexik\Bundle\WorkflowBundle\Flow\Step;
 use Lexik\Bundle\WorkflowBundle\Model\ModelInterface;
@@ -40,14 +43,15 @@ class ProcessHandler implements ProcessHandlerInterface
     }
 
     /**
-     * @throws WorkflowException
+     * @throws AlreadyStartedProcessException
+     * @throws StepNotFoundException
      */
     public function start(ModelInterface $model): ModelState
     {
         $modelState = $this->storage->findCurrentModelState($model, $this->process->getName());
 
         if ($modelState instanceof ModelState) {
-            throw new WorkflowException(sprintf('The given model has already started the "%s" process.',
+            throw new AlreadyStartedProcessException(sprintf('The given model has already started the "%s" process.',
                 $this->process->getName()));
         }
 
@@ -57,20 +61,23 @@ class ProcessHandler implements ProcessHandlerInterface
     }
 
     /**
-     * @throws WorkflowException
+     * @throws StepNotFoundException
      */
     protected function getProcessStep(string $stepName): ?Step
     {
         $step = $this->process->getStep($stepName);
 
         if (!($step instanceof Step)) {
-            throw new WorkflowException(sprintf('Can\'t find step named "%s" in process "%s".', $stepName,
+            throw new StepNotFoundException(sprintf('Can\'t find step named "%s" in process "%s".', $stepName,
                 $this->process->getName()));
         }
 
         return $step;
     }
 
+    /**
+     * @throws StepNotFoundException
+     */
     protected function reachStep(ModelInterface $model, Step $step, ?ModelState $currentModelState = null): ModelState
     {
         try {
@@ -142,21 +149,23 @@ class ProcessHandler implements ProcessHandlerInterface
     }
 
     /**
-     * @throws WorkflowException
+     * @throws UnstartedProcessException
+     * @throws StepNotFoundException
+     * @throws UnreachableStepException
      */
     public function reachNextState(ModelInterface $model, string $stateName): ModelState
     {
         $currentModelState = $this->storage->findCurrentModelState($model, $this->process->getName());
 
         if (!($currentModelState instanceof ModelState)) {
-            throw new WorkflowException(sprintf('The given model has not started the "%s" process.',
+            throw new UnstartedProcessException(sprintf('The given model has not started the "%s" process.',
                 $this->process->getName()));
         }
 
         $currentStep = $this->getProcessStep($currentModelState->getStepName());
 
         if (!$currentStep->hasNextState($stateName)) {
-            throw new WorkflowException(sprintf('The step "%s" does not contain any next state named "%s".',
+            throw new UnreachableStepException(sprintf('The step "%s" does not contain any next state named "%s".',
                 $currentStep->getName(), $stateName));
         }
 
