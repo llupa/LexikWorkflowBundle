@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Lexik\Bundle\WorkflowBundle\Handler;
 
-use Lexik\Bundle\WorkflowBundle\Exception\WorkflowException;
+use Lexik\Bundle\WorkflowBundle\Exception\UnknownProcessException;
+use Lexik\Bundle\WorkflowBundle\Flow\Process;
 
 /**
  * Aggregate all processes.
@@ -18,11 +19,6 @@ class ProcessAggregator
      */
     private $processes;
 
-    /**
-     * Construct.
-     *
-     * @param array $processes
-     */
     public function __construct(array $processes)
     {
         $this->processes = $processes;
@@ -32,14 +28,14 @@ class ProcessAggregator
      * Returns a process by its name.
      *
      * @param string $name
-     * @return \Lexik\Bundle\WorkflowBundle\Flow\Process
+     * @return Process
      *
-     * @throws WorkflowException
+     * @throws UnknownProcessException
      */
     public function getProcess($name)
     {
         if (!isset($this->processes[$name])) {
-            throw new WorkflowException(sprintf('Unknown process "%s".', $name));
+            throw new UnknownProcessException(sprintf('Unknown process "%s".', $name));
         }
 
         return $this->processes[$name];

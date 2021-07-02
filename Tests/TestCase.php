@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Lexik\Bundle\WorkflowBundle\Tests;
 
-use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\SimplifiedXmlDriver;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -80,8 +79,6 @@ EOF;
 
     protected function getSqliteEntityManager(): EntityManager
     {
-        $cache = new ArrayCache();
-
         // xml driver
         $xmlDriver = new SimplifiedXmlDriver([
             __DIR__.'/../Resources/config/doctrine' => 'Lexik\Bundle\WorkflowBundle\Entity',
@@ -92,8 +89,6 @@ EOF;
             __DIR__.'/../Entity',
         ], false, null, null, false);
         $config->setMetadataDriverImpl($xmlDriver);
-        $config->setMetadataCacheImpl($cache);
-        $config->setQueryCacheImpl($cache);
         $config->setProxyDir(sys_get_temp_dir());
         $config->setProxyNamespace('Proxy');
         $config->setAutoGenerateProxyClasses(true);
